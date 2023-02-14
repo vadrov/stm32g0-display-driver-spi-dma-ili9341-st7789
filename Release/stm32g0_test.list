@@ -7,23 +7,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         00001a58  080000bc  080000bc  000100bc  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       00002c10  08001b14  08001b14  00011b14  2**2
+  2 .rodata       00000bb0  08001b14  08001b14  00011b14  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  08004724  08004724  000200a4  2**0
+  3 .ARM.extab    00000000  080026c4  080026c4  000200a4  2**0
                   CONTENTS
-  4 .ARM          00000000  08004724  08004724  000200a4  2**0
+  4 .ARM          00000000  080026c4  080026c4  000200a4  2**0
                   CONTENTS
-  5 .preinit_array 00000000  08004724  08004724  000200a4  2**0
+  5 .preinit_array 00000000  080026c4  080026c4  000200a4  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .init_array   00000004  08004724  08004724  00014724  2**2
+  6 .init_array   00000004  080026c4  080026c4  000126c4  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .fini_array   00000004  08004728  08004728  00014728  2**2
+  7 .fini_array   00000004  080026c8  080026c8  000126c8  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  8 .data         000000a4  20000000  0800472c  00020000  2**2
+  8 .data         000000a4  20000000  080026cc  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000024  200000a4  080047d0  000200a4  2**2
+  9 .bss          00000024  200000a4  08002770  000200a4  2**2
                   ALLOC
- 10 ._user_heap_stack 00000600  200000c8  080047d0  000200c8  2**0
+ 10 ._user_heap_stack 00000600  200000c8  08002770  000200c8  2**0
                   ALLOC
  11 .ARM.attributes 00000028  00000000  00000000  000200a4  2**0
                   CONTENTS, READONLY
@@ -897,7 +897,7 @@ Disassembly of section .text:
  80007bc:	20002000 	.word	0x20002000
  80007c0:	20000000 	.word	0x20000000
  80007c4:	200000a4 	.word	0x200000a4
- 80007c8:	0800472c 	.word	0x0800472c
+ 80007c8:	080026cc 	.word	0x080026cc
  80007cc:	200000a4 	.word	0x200000a4
  80007d0:	200000c8 	.word	0x200000c8
 
@@ -3234,10 +3234,10 @@ Disassembly of section .text:
  8001a4e:	4798      	blx	r3
  8001a50:	3601      	adds	r6, #1
  8001a52:	e7f2      	b.n	8001a3a <__libc_init_array+0x1e>
- 8001a54:	08004724 	.word	0x08004724
- 8001a58:	08004724 	.word	0x08004724
- 8001a5c:	08004724 	.word	0x08004724
- 8001a60:	08004728 	.word	0x08004728
+ 8001a54:	080026c4 	.word	0x080026c4
+ 8001a58:	080026c4 	.word	0x080026c4
+ 8001a5c:	080026c4 	.word	0x080026c4
+ 8001a60:	080026c8 	.word	0x080026c8
 
 08001a64 <memset>:
  8001a64:	0003      	movs	r3, r0
@@ -3300,7 +3300,7 @@ Disassembly of section .text:
  8001ad6:	3201      	adds	r2, #1
  8001ad8:	3b01      	subs	r3, #1
  8001ada:	e7f5      	b.n	8001ac8 <__utoa+0x54>
- 8001adc:	080046fc 	.word	0x080046fc
+ 8001adc:	0800269c 	.word	0x0800269c
 
 08001ae0 <utoa>:
  8001ae0:	b510      	push	{r4, lr}

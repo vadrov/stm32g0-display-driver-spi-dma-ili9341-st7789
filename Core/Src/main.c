@@ -169,7 +169,7 @@ int main(void)
   LCD_Handler *lcd = LCD; //указатель на первый дисплей в списке
   LCD_Init(lcd);
   LCD_Fill(lcd, COLOR_RED);
-  LCD_WriteString(lcd, 0, 0, "Hello, world!", &Font_15x25, COLOR_YELLOW, COLOR_BLUE, LCD_SYMBOL_PRINT_FAST);
+  LCD_WriteString(lcd, 0, 0, "Hello, world!", &Font_8x13, COLOR_YELLOW, COLOR_BLUE, LCD_SYMBOL_PRINT_FAST);
   LL_mDelay(2000);
 
   /* USER CODE END 2 */
@@ -202,7 +202,7 @@ int main(void)
   		  frames++;
   	  }
   	  utoa(frames, buff, 10);
-  	  LCD_WriteString(lcd, 0, 0, buff, &Font_15x25, COLOR_YELLOW, COLOR_BLUE, LCD_SYMBOL_PRINT_FAST);
+  	  LCD_WriteString(lcd, 0, 0, buff, &Font_8x13, COLOR_YELLOW, COLOR_BLUE, LCD_SYMBOL_PRINT_FAST);
   	  LL_mDelay(1000);
   }
 
