@@ -1,0 +1,10 @@
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:166:13:LL_RCC_DeInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:234:6:LL_RCC_GetSystemClocksFreq	16	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:255:10:LL_RCC_GetUSARTClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:367:10:LL_RCC_GetI2CClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:435:10:LL_RCC_GetI2SClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:519:10:LL_RCC_GetLPUARTClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:604:10:LL_RCC_GetLPTIMClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:691:10:LL_RCC_GetTIMClockFreq	16	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:895:10:LL_RCC_GetADCClockFreq	8	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c:935:10:LL_RCC_GetRTCClockFreq	0	static

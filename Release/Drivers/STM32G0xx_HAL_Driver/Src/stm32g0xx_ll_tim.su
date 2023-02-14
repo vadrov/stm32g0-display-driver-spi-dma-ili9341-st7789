@@ -1,0 +1,13 @@
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:222:13:LL_TIM_DeInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:307:6:LL_TIM_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:326:13:LL_TIM_Init	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:378:6:LL_TIM_OC_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:407:13:LL_TIM_OC_Init	16	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:445:6:LL_TIM_IC_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:468:13:LL_TIM_IC_Init	12	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:499:6:LL_TIM_ENCODER_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:522:13:LL_TIM_ENCODER_Init	16	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:585:6:LL_TIM_HALLSENSOR_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:615:13:LL_TIM_HALLSENSOR_Init	24	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:694:6:LL_TIM_BDTR_StructInit	0	static
+../Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_tim.c:729:13:LL_TIM_BDTR_Init	8	static
