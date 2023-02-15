@@ -96,7 +96,7 @@ void Display_TC_Callback(DMA_TypeDef *dma_x, uint32_t stream)
 				ENABLE_IRQ
 			}
 #endif
-			//запрещаем SPI принимать запросы от DMA
+			//запрещаем SPI отправлять запросы к DMA
 			lcd->spi_data.spi->CR2 &= ~SPI_CR2_TXDMAEN;
 			while (lcd->spi_data.spi->SR & SPI_SR_BSY) { __NOP(); } //ждем пока SPI освободится
 			//отключаем дисплей от MK (притягиваем вывод CS дисплея к высокому уровню)
@@ -144,7 +144,7 @@ inline static void LCD_WRITE_DC(LCD_Handler* lcd, uint8_t data, lcd_dc_select lc
 	else {
 		LCD_DC_HI
 	}
-	spi->DR = data; //команда
+	LL_SPI_TransmitData8(SPI1, data);
 	while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
 	while (spi->SR & SPI_SR_BSY)    { __NOP(); } //ждем когда SPI освободится
 }
@@ -226,9 +226,9 @@ void LCD_ReadImage(LCD_Handler* lcd, uint16_t x, uint16_t y, uint16_t w, uint16_
 	//Контроллер дисплея за эти 8 тактов подготавливается к передаче данных о цвете пикселей
 	int i = 2;
 	while (i--) {
-		spi->DR = 0x00; //NOP
+		LL_SPI_TransmitData8(spi, 0);
 		while (!(spi->SR & SPI_SR_RXNE)) { __NOP(); } //Ожидаем прием ответа от контроллера дисплея
-		r = spi->DR;
+		r = LL_SPI_ReceiveData8(spi);
 	}
 	//------------------------------ Читаем данные о цвете len пикселей --------------------------
 	while (len--) {
@@ -236,15 +236,15 @@ void LCD_ReadImage(LCD_Handler* lcd, uint16_t x, uint16_t y, uint16_t w, uint16_
 		//По спецификации последовательность считываемых составляющих цветов заявлена r, g, b,
 		//Если считываемые цвета будут не соответствовать фактическим, то снизьте скорость spi для чтения,
 		//но иногда стабильности чтения помогает подтяжка к питанию линии MISO spi.
-		spi->DR = 0x00; //NOP
+		LL_SPI_TransmitData8(spi, 0);
 		while (!(spi->SR & SPI_SR_RXNE)) { __NOP(); }//Ожидаем прием ответа от контроллера дисплея
-		r = spi->DR;
-		spi->DR = 0x00; //NOP
+		r = LL_SPI_ReceiveData8(spi);
+		LL_SPI_TransmitData8(spi, 0);
 		while (!(spi->SR & SPI_SR_RXNE)) { __NOP(); }
-		g = spi->DR;
-		spi->DR = 0x00; //NOP
+		g = LL_SPI_ReceiveData8(spi);
+		LL_SPI_TransmitData8(spi, 0);
 		while (!(spi->SR & SPI_SR_RXNE)) { __NOP(); }
-		b = spi->DR;
+		b = LL_SPI_ReceiveData8(spi);
 		*data_ptr++ = LCD_Color(lcd, r, g, b); //Преобразуем цвет из R8G8B8 в R5G6B5 и запоминаем его
 	}
 	LCD_CS_HI //Отключаем контроллер дисплея от МК
@@ -597,19 +597,17 @@ void LCD_WriteData(LCD_Handler *lcd, uint16_t *data, uint32_t len)
 	}
 	spi->CR1 |= SPI_CR1_SPE; //SPI включаем
 	if (lcd->data_bus == LCD_DATA_16BIT_BUS) {
-		while (len) {
-			spi->DR = *data++; //записываем данные в регистр
+		while (len--) {
+			LL_SPI_TransmitData16(spi, *data++); //записываем данные в регистр
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-			len--;
 		}
 	}
 	else {
 		len *= 2;
 		uint8_t *data1 = (uint8_t*)data;
-		while (len)	{
-			spi->DR = *data1++; //записываем данные в регистр
+		while (len--)	{
+			LL_SPI_TransmitData8(spi, *data1++); //записываем данные в регистр
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-			len--;
 		}
 	}
 	while (spi->SR & SPI_SR_BSY) { __NOP(); } //ждем когда SPI освободится
@@ -724,19 +722,18 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 	}
 	if (lcd->data_bus == LCD_DATA_16BIT_BUS) {
 		while(len) {
-			spi->DR = color16; //записываем данные в регистр
+			LL_SPI_TransmitData16(spi, color16); //записываем данные в регистр
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
 			len--;
 		}
 	}
 	else {
 		uint8_t color1 = color16 & 0xFF, color2 = color16 >> 8;
-		while(len) {
-			spi->DR = color1;
+		while(len--) {
+			LL_SPI_TransmitData8(spi, color1);
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-			spi->DR = color2;
+			LL_SPI_TransmitData8(spi, color2);
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-			len--;
 		}
 	}
 	while (spi->SR & SPI_SR_BSY) { __NOP(); } //ждем когда SPI освободится
@@ -1082,13 +1079,13 @@ void LCD_WriteChar(LCD_Handler* lcd, uint16_t x, uint16_t y, char ch, FontDef *f
 				color = (tmp << j) & k ? txcolor16: bgcolor16;
 				while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
 				if (lcd->data_bus == LCD_DATA_16BIT_BUS) {
-					spi->DR = color;
+					LL_SPI_TransmitData16(spi, color);
 				}
 				else {
 					uint8_t color1 = color & 0xFF, color2 = color >> 8;
-					spi->DR = color1;
+					LL_SPI_TransmitData8(spi, color1);
 					while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-					spi->DR = color2;
+					LL_SPI_TransmitData8(spi, color2);
 				}
 			}
 		}
