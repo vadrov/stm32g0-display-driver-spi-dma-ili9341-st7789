@@ -647,13 +647,8 @@ void LCD_WriteDataDMA(LCD_Handler *lcd, uint16_t *data, uint32_t len)
 		SET_BIT(dma_x->IFCR, 1 << channel * 4);
 		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
-		//настраиваем адреса, длину, инкременты
-		if (lcd->data_bus == LCD_DATA_16BIT_BUS) {  //ширина кадра spi 16 бит
-			dma_TX->CPAR = (uint32_t)((__IO uint16_t *)&spi->DR); //приемник периферия - адрес регистра DR spi
-		}
-		else { //ширина кадра spi 8 бит
-			dma_TX->CPAR = (uint32_t)((__IO uint8_t *)&spi->DR);
-		}
+		//-------------- Настраиваем адреса, длину, инкременты ---------------
+		dma_TX->CPAR = (uint32_t)&spi->DR; //приемник периферия - адрес регистра DR spi
 		dma_TX->CMAR = (uint32_t)data; //источник память - адрес буфера исходящих данных
 		dma_TX->CCR &= ~DMA_CCR_PINC; //инкремент адреса периферии отключен
 		dma_TX->CCR |= DMA_CCR_MINC;  //инкремент адреса памяти включен
@@ -695,6 +690,8 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 	else {
 		spi->CR2 |= 7UL << SPI_CR2_DS_Pos; //ширины кадра spi 8 бит
 	}
+	//Количество данных для передачи четное, т.к. ширина spi совпадает с шириной памяти
+	spi->CR2 &= ~SPI_CR2_LDMATX;
 	spi->CR1 |= SPI_CR1_SPE; // SPI включаем
 	if (lcd->spi_data.dma_tx.dma)
 	{
@@ -709,13 +706,7 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
 		//-------------- Настраиваем адреса, длину, инкременты ---------------
-		//приемник периферия - адрес регистра DR spi
-		if (lcd->data_bus == LCD_DATA_16BIT_BUS) {  //ширина кадра spi 16 бит
-			dma_TX->CPAR = (uint32_t)((__IO uint16_t *)&spi->DR);
-		}
-		else { //ширина кадра spi 8 бит
-			dma_TX->CPAR = (uint32_t)((__IO uint8_t *)&spi->DR);
-		}
+		dma_TX->CPAR = (uint32_t)&spi->DR; //приемник периферия - адрес регистра DR spi
 		dma_TX->CMAR = (uint32_t)&lcd->fill_color; //источник память - адрес буфера исходящих данных
 		dma_TX->CCR &= ~DMA_CCR_PINC; //инкремент адреса периферии отключен
 		dma_TX->CCR &= ~DMA_CCR_MINC; //инкремент адреса памяти отключен
