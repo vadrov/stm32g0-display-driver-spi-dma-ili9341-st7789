@@ -147,7 +147,7 @@ void SysTick_Handler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-	Display_TC_Callback(DMA1, 1);
+	Display_TC_Callback(DMA1, LL_DMA_CHANNEL_1);
   /* USER CODE END DMA1_Channel1_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */

@@ -102,7 +102,7 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   LCD_DMA_TypeDef dma_tx = { DMA1,
-		  	  	  	  	     1 };
+		  	  	  	  	     LL_DMA_CHANNEL_1 };
 
   LCD_BackLight_data bkl_data = { TIM3,
 		  	  	  	  	  	  	  LL_TIM_CHANNEL_CH1,

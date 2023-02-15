@@ -45,21 +45,20 @@ LCD_Handler *LCD = 0; //список дисплеев
 //коллбэк по прерыванию потока передачи
 //этот обработчик необходимо прописать в функциях обработки прерываний в потоках DMA,
 //которые используются дисплеями - stm32f4xx_it.c
-void Display_TC_Callback(DMA_TypeDef *dma_x, uint32_t stream)
+void Display_TC_Callback(DMA_TypeDef *dma_x, uint32_t channel)
 {
 	//сбрасываем флаги прерываний
-	volatile uint32_t *ifcr_tx = &(dma_x->IFCR);
-	*ifcr_tx = 0xF << ((stream - 1) * 4);
-	uint32_t stream_ct = 0;
+	SET_BIT(dma_x->IFCR, 1 << channel * 4);
+	uint32_t channel_ct = 0;
 	DMA_TypeDef *dma_ct = 0;
 	LCD_Handler *lcd = LCD; //указатель на первый дисплей в списке
 	//проходим по списку дисплеев (пока есть следующий в списке)
 	while (lcd) {
 		//получаем параметры DMA потока дисплея
 		dma_ct = lcd->spi_data.dma_tx.dma;
-		stream_ct = lcd->spi_data.dma_tx.stream;
-		//проверка на соответствие текущего потока DMA потоку, к которому привязан i-тый дисплей
-		if (dma_ct == dma_x && stream_ct == stream) {
+		channel_ct = lcd->spi_data.dma_tx.channel;
+		//проверка на соответствие текущего канала DMA каналу, к которому привязан i-тый дисплей
+		if (dma_ct == dma_x && channel_ct == channel) {
 			if (lcd->spi_data.cs_port) {//управление по cs поддерживается?
 				//на выводе cs дисплея низкий уровень?
 				if (lcd->spi_data.cs_port->ODR & lcd->spi_data.cs_pin) { //проверяем состояние пина выходного регистра порта
@@ -68,7 +67,7 @@ void Display_TC_Callback(DMA_TypeDef *dma_x, uint32_t stream)
 				}
 			}
 			//указатель на поток: aдрес контроллера + смещение
-			DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[stream])));
+			DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[channel])));
 			//выключаем поток DMA
 			dma_TX->CCR &= ~DMA_CCR_EN;
 			while (dma_TX->CCR & DMA_CCR_EN) { __NOP(); } //ждем отключения потока
@@ -345,7 +344,7 @@ LCD_Handler* LCD_DisplayAdd(LCD_Handler *lcds,     /* указатель на с
 	hdma = &lcd->spi_data.dma_tx;
 	//настройка DMA
 	if (hdma->dma) {
-		DMA_Channel_TypeDef *dma_x = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)hdma->dma + CHANNEL_OFFSET_TAB[hdma->stream])));
+		DMA_Channel_TypeDef *dma_x = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)hdma->dma + CHANNEL_OFFSET_TAB[hdma->channel])));
 		dma_x->CCR &= ~DMA_CCR_EN; //отключаем канал DMA
 		while(dma_x->CCR & DMA_CCR_EN) { __NOP(); } //ждем отключения канала
 		if (lcd->data_bus == LCD_DATA_8BIT_BUS) {
@@ -642,11 +641,10 @@ void LCD_WriteDataDMA(LCD_Handler *lcd, uint16_t *data, uint32_t len)
 		spi->CR2 &= ~SPI_CR2_LDMATX;
 		spi->CR1 |= SPI_CR1_SPE; //SPI включаем
 		DMA_TypeDef *dma_x = lcd->spi_data.dma_tx.dma;
-		uint32_t stream = lcd->spi_data.dma_tx.stream;
-		DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[stream])));
-		volatile uint32_t *ifcr_tx = &(dma_x->IFCR);
+		uint32_t channel = lcd->spi_data.dma_tx.channel;
+		DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[channel])));
 		//сбрасываем флаги прерываний tx
-		*ifcr_tx = 0xF << ((stream - 1) * 4);
+		SET_BIT(dma_x->IFCR, 1 << channel * 4);
 		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
 		//настраиваем адреса, длину, инкременты
@@ -704,11 +702,10 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 			len *= 2;
 		}
 		DMA_TypeDef *dma_x = lcd->spi_data.dma_tx.dma;
-		uint32_t stream = lcd->spi_data.dma_tx.stream;
-		DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[stream])));
-		volatile uint32_t *ifcr_tx = &(dma_x->IFCR);
+		uint32_t channel = lcd->spi_data.dma_tx.channel;
+		DMA_Channel_TypeDef *dma_TX = ((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)dma_x + CHANNEL_OFFSET_TAB[channel])));
 		//сбрасываем флаги прерываний tx
-		*ifcr_tx = 0xF << ((stream - 1) * 4);
+		SET_BIT(dma_x->IFCR, 1 << channel * 4);
 		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
 		//-------------- Настраиваем адреса, длину, инкременты ---------------

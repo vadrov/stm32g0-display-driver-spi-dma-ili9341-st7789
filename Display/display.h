@@ -100,7 +100,7 @@ typedef enum {
 //данные DMA
 typedef struct {
 	DMA_TypeDef *dma;
-	uint32_t stream;
+	uint32_t channel;
 } LCD_DMA_TypeDef;
 
 //данные spi подключения
