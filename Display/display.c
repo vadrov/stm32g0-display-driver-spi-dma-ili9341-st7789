@@ -638,6 +638,8 @@ void LCD_WriteDataDMA(LCD_Handler *lcd, uint16_t *data, uint32_t len)
 		else {
 			spi->CR2 |= 7UL << SPI_CR2_DS_Pos; //ширины кадра spi 8 бит
 		}
+		//Количество данных для передачи четное, т.к. ширина spi совпадает с шириной памяти
+		spi->CR2 &= ~SPI_CR2_LDMATX;
 		spi->CR1 |= SPI_CR1_SPE; //SPI включаем
 		DMA_TypeDef *dma_x = lcd->spi_data.dma_tx.dma;
 		uint32_t stream = lcd->spi_data.dma_tx.stream;
@@ -648,7 +650,12 @@ void LCD_WriteDataDMA(LCD_Handler *lcd, uint16_t *data, uint32_t len)
 		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
 		//настраиваем адреса, длину, инкременты
-		dma_TX->CPAR = (uint32_t)(&spi->DR); //приемник периферия - адрес регистра DR spi
+		if (lcd->data_bus == LCD_DATA_16BIT_BUS) {  //ширина кадра spi 16 бит
+			dma_TX->CPAR = (uint32_t)((__IO uint16_t *)&spi->DR); //приемник периферия - адрес регистра DR spi
+		}
+		else { //ширина кадра spi 8 бит
+			dma_TX->CPAR = (uint32_t)((__IO uint8_t *)&spi->DR);
+		}
 		dma_TX->CMAR = (uint32_t)data; //источник память - адрес буфера исходящих данных
 		dma_TX->CCR &= ~DMA_CCR_PINC; //инкремент адреса периферии отключен
 		dma_TX->CCR |= DMA_CCR_MINC;  //инкремент адреса памяти включен
@@ -702,10 +709,16 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 		volatile uint32_t *ifcr_tx = &(dma_x->IFCR);
 		//сбрасываем флаги прерываний tx
 		*ifcr_tx = 0xF << ((stream - 1) * 4);
-		//разрешаем spi принимать запросы от DMA
+		//разрешаем spi отправлять запросы к DMA
 		spi->CR2 |= SPI_CR2_TXDMAEN;
-		//настраиваем адреса, длину, инкременты
-		dma_TX->CPAR = (uint32_t)(&spi->DR); //приемник периферия - адрес регистра DR spi
+		//-------------- Настраиваем адреса, длину, инкременты ---------------
+		//приемник периферия - адрес регистра DR spi
+		if (lcd->data_bus == LCD_DATA_16BIT_BUS) {  //ширина кадра spi 16 бит
+			dma_TX->CPAR = (uint32_t)((__IO uint16_t *)&spi->DR);
+		}
+		else { //ширина кадра spi 8 бит
+			dma_TX->CPAR = (uint32_t)((__IO uint8_t *)&spi->DR);
+		}
 		dma_TX->CMAR = (uint32_t)&lcd->fill_color; //источник память - адрес буфера исходящих данных
 		dma_TX->CCR &= ~DMA_CCR_PINC; //инкремент адреса периферии отключен
 		dma_TX->CCR &= ~DMA_CCR_MINC; //инкремент адреса памяти отключен
@@ -721,10 +734,9 @@ void LCD_FillWindow(LCD_Handler* lcd, uint16_t x1, uint16_t y1, uint16_t x2, uin
 		return;
 	}
 	if (lcd->data_bus == LCD_DATA_16BIT_BUS) {
-		while(len) {
+		while(len--) {
 			LL_SPI_TransmitData16(spi, color16); //записываем данные в регистр
 			while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
-			len--;
 		}
 	}
 	else {

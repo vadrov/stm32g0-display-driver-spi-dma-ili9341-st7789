@@ -179,6 +179,7 @@ int main(void)
   uint32_t tick;
   uint32_t frames;
   char buff[10];
+
   uint8_t r = 0, g = 0, b = 0;
   while (1)
   {
