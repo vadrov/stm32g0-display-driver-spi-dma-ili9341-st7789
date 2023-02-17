@@ -12,3 +12,4 @@ LCD_RES ---> PA4
 LCD_CS  ---> PA5
 LCD_BLK ---> PA6
 ```
+Поддержать автора: [donate.qiwi](https://donate.qiwi.com/payin/VadRov)  [donate.yoomoney](https://yoomoney.ru/to/4100117522443917)
