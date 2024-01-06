@@ -143,7 +143,7 @@ inline static void LCD_WRITE_DC(LCD_Handler* lcd, uint8_t data, lcd_dc_select lc
 	else {
 		LCD_DC_HI
 	}
-	LL_SPI_TransmitData8(SPI1, data);
+	LL_SPI_TransmitData8(spi, data);
 	while (!(spi->SR & SPI_SR_TXE)) { __NOP(); } //ждем окончания передачи
 	while (spi->SR & SPI_SR_BSY)    { __NOP(); } //ждем когда SPI освободится
 }
