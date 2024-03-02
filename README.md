@@ -16,4 +16,4 @@ See the description of the driver, functions and parameters in the project https
 
 Смотрите описание драйвера, функций и параметров в проекте https://github.com/vadrov/stm32-display-spi-dma
 
-Поддержать автора: [donate.qiwi](https://donate.qiwi.com/payin/VadRov)  [donate.yoomoney](https://yoomoney.ru/to/4100117522443917)
+Поддержать автора: [donate.yoomoney](https://yoomoney.ru/to/4100117522443917)
